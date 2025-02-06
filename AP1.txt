@@ -1,0 +1,128 @@
+# Integrantes: Carlos.H, Joel.G, Oriol.G, Bryan.F
+import re
+
+# Funcion para validar el DNI
+def validar_dni(clave):
+    # Patrón de un DNI español: 8 dígitos seguidos de una letra mayúscula.
+    patron = r'^\d{8}[A-Z]$'
+    if re.match(patron, clave):
+        return True
+    else:
+        return False
+
+# La funcion Diccionario busca si hay un diccionario y si no lo hay crea uno.
+def Diccionario():
+    diccionario = {}
+    try:
+        with open('diccionario.txt', 'r') as archivo:
+            for linea in archivo:
+                clave, valor = linea.strip().split(":", 1)
+                # Verificar si el valor es un número entero
+                if valor.isdigit():
+                    valor = int(valor)
+                diccionario[clave] = valor
+    except FileNotFoundError:
+        print('Archivo no encontrado, se creará uno nuevo.')
+
+    # Escribir el diccionario actualizado al archivo (si existe o se ha creado)
+    with open('diccionario.txt', 'w') as archivo:
+        for clave, valor in diccionario.items():
+            archivo.write(f"{clave}:{valor}\n")
+
+    print('Bienvenido')
+    return diccionario
+
+# La funcion DarAlta da de alta a los usuarios para registrarse
+def DarAlta(diccionario):
+    print("Escribe el NIF que quieras registrar:")
+    clave = input()  # Leer NIF del usuario
+    clave = clave.strip()
+    verificacion = validar_dni(clave)
+    if verificacion == True:
+        print("Escribe el nombre que quieras registrar:")
+        valor = input()  # Leer nombre del usuario
+        valor = valor.strip()
+
+        if clave not in diccionario:
+            diccionario.update({clave: valor})  # Agregar al diccionario
+            with open('diccionario.txt', 'a') as archivo:  # Usamos 'a' para agregar sin sobrescribir
+                archivo.write(f"{clave}:{valor}\n")
+            print('Guardado')
+            return
+        else:
+            print("Ya está registrado el usuario")
+            return
+    elif verificacion == False:
+        print('Dni no cumple las condiciones')
+        return
+    return
+
+# La funcion DarBaja da de baja a clientes que ya existen.
+def DarBaja(diccionario):
+    print("Escribe el NIF que quieras borrar:")
+    clave = input()  # Leer NIF a eliminar
+
+    if clave in diccionario:
+        diccionario.pop(clave)  # Eliminar del diccionario
+        # Reescribir el archivo sin la clave eliminada
+        with open('diccionario.txt', 'w') as archivo:
+            for k, v in diccionario.items():
+                archivo.write(f"{k}:{v}\n")  # Escribir las claves y valores restantes
+        print('Cliente eliminado')
+    else:
+        print("No se encuentra el NIF en el sistema.")
+    return
+
+# La funcion mostrar muestra los clientes que estan en el diccionario
+def mostrar(diccionario):
+    if diccionario:
+        for clave, valor in diccionario.items():
+            print("NIF: " + str(clave) + ", Nombre: " + str(valor))
+    else:
+        print("No hay clientes registrados.")
+    return
+
+# La funcion inicio da inicio al programa
+def inicio(diccionario):
+    selector(diccionario)
+    return
+
+# La funcion selector decide que opciones mostrar llamando a las otras funciones
+def selector(diccionario):
+    opcion = menu()  # Muestra el menú
+    seguir = True
+
+    while seguir:
+        if opcion == 0:
+            seguir = False  # Salir del programa
+        elif opcion == 1:
+            mostrar(diccionario)  # Mostrar todos los clientes
+            opcion = menu()  # Volver a mostrar el menú
+        elif opcion == 2:
+            DarAlta(diccionario)  # Dar de alta un nuevo cliente
+            opcion = menu()  # Volver a mostrar el menú
+        elif opcion == 3:
+            DarBaja(diccionario)  # Dar de baja un cliente
+            opcion = menu()  # Volver a mostrar el menú
+        else:
+            print('Opción no válida, vuelve a elegir')
+            opcion = menu()  # Volver a mostrar el menú
+
+    print('Saliendo del programa')  # Mensaje de salida
+
+# Muestra el menu.
+def menu():
+    print('Opciones:')
+    print('0- Salir del programa')
+    print('1- Mostrar clientes existentes')
+    print('2- Dar de alta a un cliente')
+    print('3- Eliminar un cliente')
+    try:
+        opcion = int(input('ingrese una opcion: '))
+        return opcion
+    except:
+        print('ingrese una opcion valida')
+
+# Llamar a la función Diccionario para iniciar el programa
+diccionario = Diccionario()
+inicio(diccionario)

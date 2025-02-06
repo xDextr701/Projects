@@ -1,0 +1,113 @@
+# Integrantes: Carlos.H, Joel.G, Oriol.G, Bryan.F
+
+# La funcion Diccionario busca si hay un diccionario y si no lo hay crea uno.
+def Diccionario():
+    diccionario2 = {}
+    try:
+        with open('diccionario2.txt', 'r') as archivo:
+            for linea in archivo:
+                clave, valor = linea.strip().split(":", 1)
+                if valor.isdigit():
+                    valor = int(valor)
+                diccionario2[clave] = valor
+    except FileNotFoundError:
+        with open('diccionario2.txt', 'w') as archivo:
+            for clave, valor in diccionario2.items():
+                archivo.write(str(clave))
+                archivo.write(":")
+                archivo.write(str(valor))
+                archivo.write("\n")
+
+    print('Bienvenido')
+    return diccionario2
+
+# La Funcion DarAlta da de alta a los productos mediante un registro de su codigo y nombre
+def DarAlta(diccionario2):
+    print("Escribe el Código de producto que quieras registrar:")
+    clave = str(input())
+    clave = clave.strip()
+
+    print("Escribe el nombre del producto que quieras registrar:")
+    valor = str(input())
+    valor = valor.strip()
+
+    if clave not in diccionario2:
+        diccionario2.update({clave: valor})
+        with open('diccionario2.txt', 'a') as archivo:
+            archivo.write(str(clave))
+            archivo.write(":")
+            archivo.write(str(valor))
+            archivo.write("\n")
+        print('Guardado')
+    elif clave in diccionario2:
+        print("Ya está registrado el producto")
+    return
+
+# La funcion Dar Baja da de baja a los productos que ya existen
+def DarBaja(diccionario2):
+    print("Escribe el Código de producto que quieras borrar:")
+    clave = str(input())
+    if clave in diccionario2:
+        diccionario2.pop(clave)
+        print("Producto con clave", clave, "eliminado.")
+        with open('diccionario2.txt', 'w') as archivo:
+            for k, v in diccionario2.items():
+                archivo.write(str(k))
+                archivo.write(":")
+                archivo.write(str(v))
+                archivo.write("\n")
+        print("Archivo actualizado correctamente.")
+    else:
+        print("La clave", clave, "no se encuentra en el diccionario.")
+    return
+
+# La funcion mostrar muestra todos los productos que esten dados de alta
+def mostrar(diccionario2):
+    print("Productos:")
+    for clave, valor in diccionario2.items():
+        print("Código:", clave, "Nombre:", valor)
+    return
+
+# La funcion inicio da inicio al programa
+def inicio(diccionario2):
+    selector(diccionario2)
+    return
+
+# La funcion selector decide que opciones mostrar llamando a otras funciones
+def selector(diccionario2):
+    opcion = menu()
+    seguir = True
+    while seguir:
+        if opcion == 0:
+            seguir = False
+        elif opcion == 1:
+            mostrar(diccionario2)
+            opcion = menu()
+        elif opcion == 2:
+            DarAlta(diccionario2)
+            opcion = menu()
+        elif opcion == 3:
+            DarBaja(diccionario2)
+            opcion = menu()
+        else:
+            print('Opción no válida, vuelve a elegir')
+            opcion = menu()
+
+    print('Saliendo del programa')
+
+# Muestra el menu
+def menu():
+    print('Opciones:')
+    print('0- Salir del programa')
+    print('1- Mostrar productos existentes')
+    print('2- Dar de alta a un producto')
+    print('3- Borrar un producto')
+    try:
+        opcion = int(input('ingrese una opcion: '))
+        return opcion
+    except:
+        print('ingrese una opcion valida')
+
+# Llamar a la función Diccionario para iniciar el programa
+diccionario2 = Diccionario()
+inicio(diccionario2)

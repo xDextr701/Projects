@@ -1,0 +1,180 @@
+# Integrantes: Carlos.H, Joel.G, Oriol.G, Bryan.F
+
+# La fucnion CargarDatosClientes carga los clientes
+def CargarDatosClientes():
+    clientes = {}
+    try:
+        with open('diccionario.txt', 'r') as archivo:
+            for linea in archivo:
+                clave, valor = linea.strip().split(":", 1)
+                if valor.isdigit():
+                    valor = int(valor)
+                clientes[clave] = valor
+    except FileNotFoundError:
+        print("Archivo de clientes no encontrado.")
+        clientes = False
+        return
+    return clientes
+
+# Esta funcion Carga los datos del producto
+def CargarDatosProductos():
+    productos = {}
+    try:
+        with open('diccionario2.txt', 'r') as archivo:
+            for linea in archivo:
+                clave, valor = linea.strip().split(":", 1)
+                if valor.isdigit():
+                    valor = int(valor)
+                productos[clave] = valor
+    except FileNotFoundError:
+        print("Archivo de productos no encontrado.")
+        productos = False
+        return productos
+    return productos
+
+# Esta funcion crea relaciones entre producots clientes usando sus identificadores
+def CargarRelaciones():
+    relaciones = {}
+    try:
+        with open('relaciones.txt', 'r') as archivo:
+            for linea in archivo:
+                cliente, producto, precio = linea.strip().split(";")
+                if cliente not in relaciones:
+                    relaciones[cliente] = {}
+                relaciones[cliente][producto] = float(precio)
+    except FileNotFoundError:
+        print("Archivo de relaciones no encontrado.")
+    return relaciones
+
+# La funcion MostrarClientes muestra los clientes con sus NIF y nombres
+def MostrarClientes(clientes):
+    print("Clientes:")
+    for clave, valor in clientes.items():
+        print("NIF: " + str(clave) + ", Nombre: " + str(valor))
+
+# La funcion MostrarProductos muestra los productos con su codigo y su nombre
+def MostrarProductos(productos):
+    print("Productos:")
+    for clave, valor in productos.items():
+        print("Código: " + str(clave) + ", Nombre: " + str(valor))
+
+# La funciion AsingarProductoCliente crea una relacion entre un producto y cliente, y tambien pondremos el asignaremos el precio de un producto
+def AsignarProductoACliente(relaciones, clientes, productos, cliente, producto, precio):
+    if cliente not in clientes:
+        print("El cliente no existe.")
+        return
+    if producto not in productos:
+        print("El producto no existe.")
+        return
+    if cliente in relaciones and producto in relaciones[cliente]:
+        print("La relación ya existe.")
+        return
+    if cliente not in relaciones:
+        relaciones[cliente] = {}
+    relaciones[cliente][producto] = float(precio)
+    with open('relaciones.txt', 'a') as archivo:
+        archivo.write(cliente + ";" + producto + ";" + str(precio) + "\n")
+    print("Relación guardada correctamente.")
+
+# Borra la relacion cliente producto con su NIF y su codigo
+def BorrarProductoDeCliente(relaciones, cliente, producto):
+    if cliente not in relaciones or producto not in relaciones[cliente]:
+        print("La relación no existe.")
+        return
+    del relaciones[cliente][producto]
+    if not relaciones[cliente]:
+        del relaciones[cliente]
+    with open('relaciones.txt', 'w') as archivo:
+        for cli, productos in relaciones.items():
+            for prod, precio in productos.items():
+                archivo.write(cli + ";" + prod + ";" + str(precio) + "\n")
+    print("Relación eliminada correctamente.")
+
+# La funcion ModificarPrecioProductoCliente modifica el precio de la relacion de un producto y un cliente usando sus identificadores
+def ModificarPrecioProductoCliente(relaciones, cliente, producto, NuevoPrecio):
+    if cliente not in relaciones or producto not in relaciones[cliente]:
+        print("La relación no existe.")
+        return
+    relaciones[cliente][producto] = float(NuevoPrecio)
+    with open('relaciones.txt', 'w') as archivo:
+        for cli, productos in relaciones.items():
+            for prod, precio in productos.items():
+                archivo.write(cli + ";" + prod + ";" + str(precio) + "\n")
+    print("Precio modificado correctamente.")
+
+# La funcion MostrarProductosCliente muestra las relaciones que existen utilizando el NIF del cliente.
+def MostrarProductosCliente(relaciones, productos, cliente):
+    if cliente not in relaciones:
+        print("El cliente no existe o no tiene productos asignados.")
+        return
+    print("Productos del cliente:")
+    for producto, precio in relaciones[cliente].items():
+        NombreProducto = productos.get(producto, "Desconocido")
+        print("Código: " + str(producto) + ", Nombre: " + str(NombreProducto) + ", Precio: " + str(precio))
+
+
+# Menú principal
+def Menu():
+    print("Opciones:")
+    print("0- Salir del programa")
+    print("1- Mostrar clientes existentes")
+    print("2- Mostrar productos existentes")
+    print("3- Asignar producto a cliente")
+    print("4- Borrar producto a cliente")
+    print("5- Modificar precio de producto para cliente")
+    print("6- Mostrar productos de un cliente")
+    try:
+        opcion = int(input("Opción: "))
+        return opcion
+
+    except:
+        print("Opcion no valida")
+
+# La funcion Inicio da inicio al programa, a su vez inicando el menu llamando a la funcion menu
+def Inicio():
+    clientes = CargarDatosClientes()
+    productos = CargarDatosProductos()
+    relaciones = CargarRelaciones()
+    if clientes == False:
+        return
+    elif productos == False:
+        return
+    Iniciar = True
+    while Iniciar:
+        opcion = Menu()
+        if opcion == 0:
+            print("Saliendo del programa.")
+            Iniciar = False
+        elif opcion == 1:
+            MostrarClientes(clientes)
+        elif opcion == 2:
+            MostrarProductos(productos)
+        elif opcion == 3:
+            cliente = input("Escribe el NIF del cliente: ")
+            cliente = cliente.strip()
+            producto = input("Escribe el código del producto: ")
+            producto = producto.strip()
+            precio = input("Escribe el precio del producto para este cliente: ")
+            AsignarProductoACliente(relaciones, clientes, productos, cliente, producto, precio)
+        elif opcion == 4:
+            cliente = input("Escribe el NIF del cliente: ")
+            cliente = cliente.strip()
+            producto = input("Escribe el código del producto: ")
+            producto = producto.strip()
+            BorrarProductoDeCliente(relaciones, cliente, producto)
+        elif opcion == 5:
+            cliente = input("Escribe el NIF del cliente: ")
+            cliente = cliente.strip()
+            producto = input("Escribe el código del producto: ")
+            producto = producto.strip()
+            NuevoPrecio = input("Escribe el nuevo precio del producto para este cliente: ")
+            ModificarPrecioProductoCliente(relaciones, cliente, producto, NuevoPrecio)
+        elif opcion == 6:
+            cliente = input("Escribe el NIF del cliente: ")
+            cliente = cliente.strip()
+            MostrarProductosCliente(relaciones, productos, cliente)
+        elif opcion != [0,1,2,3,4,5,6]:
+            print('Opcion no valida')
+
+# Llamar a la función Inico para iniciar el programa
+Inicio()
