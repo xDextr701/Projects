@@ -16,3 +16,5 @@ Este proyecto contiene cuatro aplicaciones en Python para la gestión de archivo
    ```bash
    git clone https://github.com/tu-usuario/tu-repositorio.git
    cd tu-repositorio
+✨ Autor
+Joel Gómez – xDextr701
